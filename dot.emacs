@@ -1,23 +1,7 @@
 ;;; dot.emacs --- skeletal .emacs for my-site-start	-*- emacs-lisp -*-
 
-(defvar my-site-start-paths nil)	; Shut up compiler
-
-(let ((base "/alt/var/tmp/indeed/hak/elisp"))
-  (setq my-site-start-paths
-	(list (cons base nil)		; Don't autoload
-	      (cons (concat base	; Ditto
-			    "/my-site-start") nil) ) )
-  (nconc my-site-start-paths 
-	 (mapc (function (lambda (p) (concat base "/" p)))
-	       '("recover-buffers"
-		 "darcsum/darcsum-local-stable"
-		 "spam-complaint") ) ) )
-
-(load-file "/opt/var/tmp/indeed/hak/elisp/my-site-start.el")
-
-;(autoload 'recover-buffers "recover-buffers" nil t)
-;(autoload 'spam-forward "spam-complaint" nil t)
-;(autoload 'spam-forward-received "spam-complaint" nil t)
+(autoload 'my-site-start "my-site-start/my-site-start" nil t)
+(my-site-start "~/.emacs.d/site-start/")
 
 (custom-set-variables
   ;; custom-set-variables was added by Custom.

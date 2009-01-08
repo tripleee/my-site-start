@@ -1,10 +1,117 @@
 ;;; my-site-start.el --- set up personal elisp/site-start.d/
-;; era 2008-12-19
 ;;
+;; Copyright (C) era eriksson <http://www.iki.fi/~era/> 2008-2009
+;; "New-style" BSD license (no advertising clause)
+;;
+;;; Commentary
+;;
+;; The purpose of my-site-start is to simplify maintenance of user libraries.
+;; Instead of indefinitely tweaking your .emacs, just add symlinks to the
+;; libraries you want to load into Emacs.
+;;
+;; Of course, my-site-start itself needs to be configured in the old-fashioned
+;; style;
+;;
+;;  (autoload 'my-site-start "my-site-start" nil t)
+;;  (my-site-start "~/.emacs.d/site-start/")
+;;
+;; This will load all files matching `my-site-start-file-name-regex' in
+;; .emacs.d/site-start/ including any symlinks and subdirectories.
+;;
+;; See the customization variables below for more flexible and/or more
+;; restricted usage scenarios.
+;;
+;;;;;;;; TODO: home page
+;;;;;;;; TODO: public repo
+;;
+;;; Code
 
-(require 'subr)
+;(require 'subr)		; Not necessary, and doesn't (provide 'subr)
 
-(defvar my-startup-terminal-setup-hook nil "\
+
+;;;;;;;; FIXME: defcustom
+
+(defvar my-site-start-inhibit-p nil "\
+*Set to non-nil to inhibit the running of `my-site-start' when loading.")
+
+(defvar my-site-start-file-name-regex
+  "\\(\\`\\|/\\)[0-9][0-9][-A-Za-z0-9_+.#$%@]+\.elc?$"
+  "*Regular expression to select which files to `load' from `my-site-start'.
+
+The regular expression is applied against each file's base name (the bare
+file name with no directory path).")
+
+(defvar my-site-start-load-order-function #'my-site-start-sort-load-order
+  "*Function accepting a list of strings specifying file names to be loaded,
+and returning the list in sorted order.  Usef in `my-site-start' to decide
+the order in which to load files.")
+
+
+(defun my-site-start (dir &optional no-recursion) "\
+Add DIR to `load-path' and load files matching `my-site-start-file-name-regex'.
+
+The optional second argument NO-RECURSION says to not traverse any directories.
+
+See also `my-site-start-interactive-file-function' for controlling deferred
+loading of interactive features.
+
+The final load order is primarily based on file name.  In its default
+configuration, `my-site-start' will only load file names with a numeric prefix,
+in the numeric prefix order, falling back to the sort order of the whole file
+name, regardless of the directory name.  However, this can be reconfigured by
+changing the values of the variables `my-site-start-file-name-regex' and 
+`my-site-start-load-order-function'.
+
+If the value of the variable `my-site-start-inhibit-p' is non-`nil',
+`my-site-start' will only report which files would have been loaded."
+  (mapc #'my-site-start-load (my-site-start-find-files dir no-recursion)) )
+
+(defun my-site-start-load (file)
+  "Load FILE, or just print file name if `my-site-start-inhibit-p' is non-nil."
+  (message (if my-site-start-inhibit-p "Would load %s" "Loading %s") file)
+  (or my-site-start-inhibit-p (load-file file)) )
+
+(defun my-site-start-find-files (dir no-recursion)
+  "Return files in DIR which are eligible for loading, obeying NO-RECURSION
+i.e. only scanning the current directory if non-nil, otherwise descending into
+subdirectories.
+
+See `my-site-start-file-name-regex' and `my-site-start-load-order-function'
+for determining which files should be loaded, and in which order."
+  (let ((files (directory-files dir t nil t)) list file)
+    (while files
+      (setq file (car files)
+	    files (cdr files))
+      (cond
+       ((string-match "\\(\\`\\|/\\)\\.\\.?$" file) nil)
+       ((file-directory-p file)
+	(or no-recursion
+	    (setq list (append list (my-site-start-find-files file nil))) ) )
+       ((string-match my-site-start-file-name-regex file)
+	(setq list (cons file list)) ) ) )
+    (funcall my-site-start-load-order-function list) ))
+
+(defun my-site-start-sort-load-order (list)
+  "Return the file names in LIST sorted numerically by basename."
+  (sort list
+	(function
+	 (lambda (a b)
+	   (let ((r "\\(\\`\\|/\\)\\(\\([0-9][0-9]\\).*\\)\\.elc?$"))
+	     (if (string-match r a)
+		 (setq a (cons (string-to-number (match-string 3 a))
+			       (match-string 2 a)))
+	       (error "File name %s does not match regex %s" a r) )
+	     (if (string-match r b)
+		 (setq b (cons (string-to-number (match-string 3 b))
+			       (match-string 2 b)))
+	       (error "File name %s does not match regex %s" b r) )
+	     (if (equal (car a) (car b))
+		 (string-lessp (cdr a) (cdr b))
+	       (< (car a) (car b)) ) ))) ))
+
+
+
+(defvar my-startup-interactive-setup-hook nil "\
 Hook run at the end of loading user's startup files, if running on a terminal.
 
 This provides a facility for deferring loading of features which are only
@@ -13,73 +120,9 @@ useful in interactive use, but not e.g. when batch-compiling Elisp files.
 Technically, this hook is run from `term-setup-hook' in turn.")
 
 (add-hook 'term-setup-hook
-	  #'(lambda nil (run-hooks 'my-startup-terminal-setup-hook)) )
+	  #'(lambda nil (run-hooks 'my-startup-interactive-setup-hook)) )
 
-;(add-hook 'my-startup-terminal-setup-hook #'(lambda nil (message "fnord")))
-
-
-;;;;;;;; FIXME: defcustom
-
-(defvar my-site-start-paths nil "\
-*List of paths to add to `load-path' in `my-site-start'.
-
-Normally, this should be a list of strings; however, as a special case,
-entries may be a cons cell, in which the car is the path name as a string
-and the cdr is nil, to signify that no autoloading should be attempted
-in the directory named by the string.  `my-site-start-autoload-file-p' is
-used to determine which files to skip in this case.")
-
-;;;;;;;; TODO: should there be one my-site-start-system-file-p too?
-
-(defvar my-site-start-inhibit-p nil "\
-*Set to non-nil to inhibit the running of `my-site-start' when loading.")
-
-(defvar my-site-start-filename-mask-regex "\\`[0-9][0-9]*\.elc?$"
-  "*Regular expression to select which files to `load' from `my-site-start'.
-
-The regular expression is applied against each file's base name (the bare
-file name with no directory path).")
-
-(defun my-site-start nil "\
-Library of functions for implementing a personal `site-start.d' directory tree.
-
-You use this library by `load'ing it; when loaded, it will examine the value
-of `my-site-start-paths', and load any file names matching the wildcard in
-`my-site-start-filename-mask-regex' in every one of the directories in the
-path.
-
-The load order is based on file name; only file names with a numeric prefix
-will be loaded, in the numeric prefix order, falling back to the sort order
-of the whole file name, regardless of the directory name.
-
-The function `my-site-start' is run each time when you `load' the library,
-but if the value of the variable `my-site-start-inhibit-p' is non-`nil',
-it will only report which files would have been loaded."
-  (mapc #'my-site-start-load-dir (my-site-start-paths)) )
-
-(defun my-site-start-load-dir (dir)
-  "Load all files from DIR matching `my-site-start-filename-mask-regex'
-unless `my-site-start-inhibit-p' is set, in which case only report which
-files would have been loaded.
-
-Also add DIR to `load-path' if it is not already present."
-  (let ((files (directory-files dir nil my-site-start-filename-mask-regex))
-	file noautoload)
-    (when (consp dir)
-      (setq dir (car dir)
-	    noautoload t) )
-    (add-to-list 'load-path dir)
-    (while files
-      (setq file (concat dir "/" (car files))
-	    files (cdr files))
-      (when (not (and noautoload (my-site-start-autoload-file-p file)))
-	(if (my-site-start-inhibit-p)
-	    (message
-	     "Loading of '%s' inhibited by my-site-start-inhibit-p" file)
-	  (load-file file) )) ) ))
-
-
-(my-site-start)
+;(add-hook 'my-startup-interactive-setup-hook #'(lambda nil (message "fnord")))
 
 
 ;; This isn't really meant to be `require'd, but what the hey
