@@ -67,7 +67,19 @@ If the value of the variable `my-site-start-inhibit-p' is non-`nil',
   (mapc #'my-site-start-load (my-site-start-files dir no-recursion)) )
 
 (defun my-site-start-load (file)
-  "Load FILE, or just print file name if `my-site-start-inhibit-p' is non-nil."
+  "Load FILE, and add its path to `load-path' if it is missing.
+
+If `my-site-start-inhibit-p' is non-nil, just print diagnostics indiciating
+what would have been done."
+  (let ((p (if (string-match "\\`\\(.*\\)?/[^/]*\\'" file)
+	       (match-string 1 file)
+	     ".")))
+    (when (string-equal "" p) (setq p "."))
+    (message (if my-site-start-inhibit-p
+		 (if (member p load-path) "%s is already on load-path"
+		   "Would add %s to load-path")
+	       "Adding %s to load-path") p)
+    (add-to-list 'load-path p) )
   (message (if my-site-start-inhibit-p "Would load %s" "Loading %s") file)
   (or my-site-start-inhibit-p (load-file file)) )
 
