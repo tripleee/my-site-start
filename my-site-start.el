@@ -64,14 +64,14 @@ changing the values of the variables `my-site-start-file-name-regex' and
 
 If the value of the variable `my-site-start-inhibit-p' is non-`nil',
 `my-site-start' will only report which files would have been loaded."
-  (mapc #'my-site-start-load (my-site-start-find-files dir no-recursion)) )
+  (mapc #'my-site-start-load (my-site-start-files dir no-recursion)) )
 
 (defun my-site-start-load (file)
   "Load FILE, or just print file name if `my-site-start-inhibit-p' is non-nil."
   (message (if my-site-start-inhibit-p "Would load %s" "Loading %s") file)
   (or my-site-start-inhibit-p (load-file file)) )
 
-(defun my-site-start-find-files (dir no-recursion)
+(defun my-site-start-files (dir no-recursion)
   "Return files in DIR which are eligible for loading, obeying NO-RECURSION
 i.e. only scanning the current directory if non-nil, otherwise descending into
 subdirectories.
@@ -86,7 +86,7 @@ for determining which files should be loaded, and in which order."
        ((string-match "\\(\\`\\|/\\)\\.\\.?$" file) nil)
        ((file-directory-p file)
 	(or no-recursion
-	    (setq list (append list (my-site-start-find-files file nil))) ) )
+	    (setq list (append list (my-site-start-files file nil))) ) )
        ((string-match my-site-start-file-name-regex file)
 	(setq list (cons file list)) ) ) )
     (funcall my-site-start-load-order-function list) ))
