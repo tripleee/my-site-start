@@ -103,20 +103,18 @@ for determining which files should be loaded, and in which order."
 	(setq list (cons file list)) ) ) )
     (funcall my-site-start-load-order-function list) ))
 
+(defsubst my-site-start-split-filename (filename)
+  (if (string-match "\\(\\`\\|/\\)\\(\\([0-9][0-9]\\).*\\)\\.elc?\\'" filename)
+      (cons (string-to-number (match-string 3 filename))
+	    (match-string 2 filename) )
+    (error "\"%s\" does not look like a valid .el/.elc file name" filename) ) )
 (defun my-site-start-sort-load-order (list)
   "Return the file names in LIST sorted numerically by basename."
   (sort list
 	(function
-	 (lambda (a b)
-	   (let ((r "\\(\\`\\|/\\)\\(\\([0-9][0-9]\\).*\\)\\.elc?$"))
-	     (if (string-match r a)
-		 (setq a (cons (string-to-number (match-string 3 a))
-			       (match-string 2 a)))
-	       (error "File name %s does not match regex %s" a r) )
-	     (if (string-match r b)
-		 (setq b (cons (string-to-number (match-string 3 b))
-			       (match-string 2 b)))
-	       (error "File name %s does not match regex %s" b r) )
+	 (lambda (aa bb)
+	   (let ((a (my-site-start-split-filename aa))
+		 (b (my-site-start-split-filename bb)))
 	     (if (equal (car a) (car b))
 		 (string-lessp (cdr a) (cdr b))
 	       (< (car a) (car b)) ) ))) ))
