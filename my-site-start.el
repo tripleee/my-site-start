@@ -41,6 +41,24 @@
 The regular expression is applied against each file's base name (the bare
 file name with no directory path).")
 
+(defvar my-site-start-avoid-dir-regex
+  (mapconcat
+   #'regexp-quote
+   '(
+     "RCS"
+     "CVS"
+     ".svn"
+     "_darcs"
+     ;;;;;;;; TODO: git, hg, monotone, svk, arch, bzr, others ...?
+     )
+   "\\|")
+  "*Regular expression of directory names to avoid in `my-site-start'
+when recursing into a directory tree.
+
+The regular expression is applied in a context where the match is
+anchored to the beginning and end of the bare directory name, without
+a full path.")
+
 (defvar my-site-start-load-order-function #'my-site-start-sort-load-order
   "*Function accepting a list of strings specifying file names to be loaded,
 and returning the list in sorted order.  Usef in `my-site-start' to decide
@@ -92,14 +110,21 @@ See `my-site-start-file-name-regex' and `my-site-start-load-order-function'
 for determining which files should be loaded, and in which order."
   (let ((files (directory-files dir 'full-path nil ; no regex to filter on
 				'dont-sort))
+	(avoid-re
+	 (concat "\\(\\`\\|/\\)"
+		 "\\("
+		 "\\.\\.?"
+		 "\\|"
+		 my-site-start-avoid-dir-regex
+		 "\\)\\'") )
 	list file)
     (while files
       (setq file (car files)
 	    files (cdr files))
       (cond
-       ((string-match "\\(\\`\\|/\\)\\.\\.?$" file) nil)
        ((file-directory-p file)
 	(or no-recursion
+	    (string-match avoid-re file)
 	    (setq list (append list (my-site-start-files file nil))) ) )
        ((string-match my-site-start-file-name-regex file)
 	(setq list (cons file list)) ) ) )
