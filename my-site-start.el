@@ -1,4 +1,4 @@
-;;; my-site-start.el --- set up personal elisp/site-start.d/
+;;; my-site-start.el --- set up personal .emacs.d/site-start.d/
 ;;
 ;; Copyright (C) era eriksson <http://www.iki.fi/~era/> 2008-2009
 ;; "New-style" BSD license (no advertising clause)
@@ -6,14 +6,14 @@
 ;;; Commentary
 ;;
 ;; The purpose of my-site-start is to simplify maintenance of user libraries.
-;; Instead of indefinitely tweaking your .emacs, just add symlinks to the
-;; libraries you want to load into Emacs.
+;; Instead of indefinitely tweaking your .emacs, just create a site-start.d
+;; directory and add symlinks to the libraries you want to load into Emacs.
 ;;
 ;; Of course, my-site-start itself needs to be configured in the old-fashioned
 ;; style;
 ;;
 ;;  (autoload 'my-site-start "my-site-start" nil t)
-;;  (my-site-start "~/.emacs.d/site-start/")
+;;  (my-site-start "~/.emacs.d/site-start.d/")
 ;;
 ;; This will load all files matching `my-site-start-file-name-regex' in
 ;; .emacs.d/site-start/ including any symlinks and subdirectories.
@@ -71,7 +71,7 @@ Add DIR to `load-path' and load files matching `my-site-start-file-name-regex'.
 The optional second argument NO-RECURSION says to not traverse any directories.
 
 See also `my-site-start-interactive-file-function' for controlling deferred
-loading of interactive features.
+loading of interactive features, and `my-site-start-interactive-setup-hook'.
 
 The final load order is primarily based on file name.  In its default
 configuration, `my-site-start' will only load file names with a numeric prefix,
@@ -148,16 +148,19 @@ for determining which files should be loaded, and in which order."
 
 
 
-(defvar my-startup-interactive-setup-hook nil "\
+(defvar my-site-start-interactive-setup-hook nil "\
 Hook run at the end of loading user's startup files, if running on a terminal.
 
 This provides a facility for deferring loading of features which are only
 useful in interactive use, but not e.g. when batch-compiling Elisp files.
 
+This hook runs any deferred, interactive startup files which were not loaded
+during initial startup; see `my-site-start-interactive-file-function'.
+
 Technically, this hook is run from `term-setup-hook' in turn.")
 
 (add-hook 'term-setup-hook
-	  #'(lambda nil (run-hooks 'my-startup-interactive-setup-hook)) )
+	  #'(lambda nil (run-hooks 'my-site-start-interactive-setup-hook)) )
 
 ;(add-hook 'my-startup-interactive-setup-hook #'(lambda nil (message "fnord")))
 
