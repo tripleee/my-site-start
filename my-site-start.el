@@ -90,7 +90,9 @@ subdirectories.
 
 See `my-site-start-file-name-regex' and `my-site-start-load-order-function'
 for determining which files should be loaded, and in which order."
-  (let ((files (directory-files dir t nil t)) list file)
+  (let ((files (directory-files dir 'full-path nil ; no regex to filter on
+				'dont-sort))
+	list file)
     (while files
       (setq file (car files)
 	    files (cdr files))
