@@ -99,8 +99,10 @@ If the value of the variable `my-site-start-inhibit-p' is non-nil,
 `my-site-start' will only report which files would have been loaded.
 Changes to the `load-path' will also not be made, only reported."
   (mapc #'my-site-start-load
-	(my-site-start-split-deferred (my-site-start-files dir no-recursion)
-				      'my-site-start-deferred-load-files) ) )
+	(my-site-start-split-deferred
+	 (funcall my-site-start-load-order-function
+		  (my-site-start-files dir no-recursion) )
+	 'my-site-start-deferred-load-files) ) )
 
 (defun my-site-start-split-deferred (list variable)
   "Move deferred file names from LIST to VARIABLE, and return the rest.
@@ -162,7 +164,7 @@ loaded."
 	      (setq list (append list (my-site-start-files file nil))) ) )
 	 ((string-match my-site-start-file-name-regex file)
 	  (setq list (cons file list)) ) ) ) )
-    (funcall my-site-start-load-order-function list) ))
+    list) )
 
 (defsubst my-site-start-split-filename (filename)
   (if (string-match "\\(\\`\\|/\\)\\(\\([0-9][0-9]\\).*\\)\\.elc?\\'" filename)
