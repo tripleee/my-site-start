@@ -42,8 +42,11 @@
   "\\(\\`\\|/\\)[0-9][0-9][-A-Za-z0-9_+.#$%@]+\.elc?$"
   "*Regular expression to select which files to `load' from `my-site-start'.
 
-The regular expression is applied against each file's base name (the bare
-file name with no directory path).")
+If you change this setting, you might also need to change other settings.
+The assumption that all selected files will have one or more numbers at the
+beginning of the file name is present in several other parts of `my-site-start'
+and so you will need to change at least `my-site-start-load-order-function'
+if this is not true.")
 
 (defvar my-site-start-avoid-dir-regex
   (mapconcat
@@ -83,19 +86,14 @@ Add DIR to `load-path' and load files matching `my-site-start-file-name-regex'.
 
 The optional second argument NO-RECURSION says to not traverse any directories.
 
-See also `my-site-start-defer-file-p-function' for controlling deferred
-loading of files, and `my-site-start-interactive-setup-hook' for the actual
-loading.  The documentation for the function `my-site-start-do-deferred-loads'
-contains further information about this feature.
+Files will be sorted according to the function pointed to by the variable
+`my-site-start-load-order-function'.
 
-The final load order is primarily based on file name.  In its default
-configuration, `my-site-start' will only load file names with a numeric prefix,
-in the numeric prefix order, falling back to the sort order of the whole file
-name, regardless of the directory name.  However, this can be reconfigured by
-changing the values of the variables `my-site-start-file-name-regex' and
-`my-site-start-load-order-function'.  The deferred loading functionality,
-described above, also affects load order, by deferring the loading of some
-files.
+See also `my-site-start-defer-file-p-function' for controlling deferred
+loading of files.  The documentation for `my-site-start-do-deferred-loads'
+contains further information about this feature.  If a file is determined to
+belong in the deferred set, it will be loaded only later, from within the
+`my-site-start-interactive-setup-hook' hook.
 
 If the value of the variable `my-site-start-inhibit-p' is non-nil,
 `my-site-start' will only report which files would have been loaded.
@@ -141,8 +139,8 @@ what would have been done."
 i.e. only scanning the current directory if non-nil, otherwise descending into
 subdirectories.
 
-See `my-site-start-file-name-regex' and `my-site-start-load-order-function'
-for determining which files should be loaded, and in which order."
+See `my-site-start-file-name-regex' for determining which files should be
+loaded."
   (let ((files (directory-files dir 'full-path nil ; no regex to filter on
 				'dont-sort))
 	(avoid-re
@@ -172,7 +170,11 @@ for determining which files should be loaded, and in which order."
 	    (match-string 2 filename) )
     (error "\"%s\" does not look like a valid .el/.elc file name" filename) ) )
 (defun my-site-start-sort-load-order (list)
-  "Return the file names in LIST sorted numerically by basename."
+  "Return the file names in LIST sorted numerically by basename.
+
+This function assumes file names adhere to the convention of having a leading
+numeric prefix to decide the load order, and will fail if this is not the
+case."
   (sort list
 	(function
 	 (lambda (aa bb)
