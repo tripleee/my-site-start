@@ -119,9 +119,10 @@ pointed to by the variable `my-site-start-defer-file-p-function'."
 
 If `my-site-start-inhibit-p' is non-nil, just print diagnostics indiciating
 what would have been done."
-  (let ((p (if (string-match "\\`\\(.*\\)?/[^/]*\\'" file)
-	       (match-string 1 file)
-	     ".")))
+  (let ((p (save-match-data
+	     (if (string-match "\\`\\(.*\\)?/[^/]*\\'" file)
+		 (match-string 1 file)
+	       ".") ) ))
     (when (string-equal "" p) (setq p "."))
     (message (if my-site-start-inhibit-p
 		 (if (member p load-path) "%s is already on load-path"
@@ -148,16 +149,17 @@ for determining which files should be loaded, and in which order."
 		 my-site-start-avoid-dir-regex
 		 "\\)\\'") )
 	list file)
-    (while files
-      (setq file (car files)
-	    files (cdr files))
-      (cond
-       ((file-directory-p file)
-	(or no-recursion
-	    (string-match avoid-re file)
-	    (setq list (append list (my-site-start-files file nil))) ) )
-       ((string-match my-site-start-file-name-regex file)
-	(setq list (cons file list)) ) ) )
+    (save-match-data
+      (while files
+	(setq file (car files)
+	      files (cdr files))
+	(cond
+	 ((file-directory-p file)
+	  (or no-recursion
+	      (string-match avoid-re file)
+	      (setq list (append list (my-site-start-files file nil))) ) )
+	 ((string-match my-site-start-file-name-regex file)
+	  (setq list (cons file list)) ) ) ) )
     (funcall my-site-start-load-order-function list) ))
 
 (defsubst my-site-start-split-filename (filename)
@@ -170,11 +172,12 @@ for determining which files should be loaded, and in which order."
   (sort list
 	(function
 	 (lambda (aa bb)
-	   (let ((a (my-site-start-split-filename aa))
-		 (b (my-site-start-split-filename bb)))
-	     (if (= (car a) (car b))
-		 (string-lessp (cdr a) (cdr b))
-	       (< (car a) (car b)) ) ))) ))
+	   (save-match-data
+	     (let ((a (my-site-start-split-filename aa))
+		   (b (my-site-start-split-filename bb)))
+	       (if (= (car a) (car b))
+		   (string-lessp (cdr a) (cdr b))
+		 (< (car a) (car b)) ) ) ))) ) )
 
 
 (defun my-site-start-do-deferred-loads ()
@@ -201,7 +204,8 @@ wish to override this behavior."
 This function is used as `my-site-start-defer-file-p-function' by default,
 and implements the simple policy that a file name with a numeric prefix
 larger than 99 names a file whose loading should be deferred."
-  (string-match "\\`\\(.*/\\)?0*[1-9][0-9][0-9][^/]*\\'" file) )
+  (save-match-data
+    (string-match "\\`\\(.*/\\)?0*[1-9][0-9][0-9][^/]*\\'" file) ) )
 
 
 (defvar my-site-start-interactive-setup-hook
