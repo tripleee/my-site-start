@@ -64,6 +64,10 @@ a full path.")
 and returning the list in sorted order.  Usef in `my-site-start' to decide
 the order in which to load files.")
 
+(defvar my-site-start-deferred-load-files nil
+  "List of files to load from `my-site-start-do-deferred-loads'.
+\(Internal use only.\)")
+
 
 (defun my-site-start (dir &optional no-recursion) "\
 Add DIR to `load-path' and load files matching `my-site-start-file-name-regex'.
@@ -147,22 +151,34 @@ for determining which files should be loaded, and in which order."
 	       (< (car a) (car b)) ) ))) ))
 
 
+(defun my-site-start-do-deferred-loads ()
+  "Load all files from `my-site-start-deferred-load-files'.
+The value of `my-site-stat-deferred-load-files' is set to `nil'.
 
-(defvar my-site-start-interactive-setup-hook nil "\
-Hook run at the end of loading user's startup files, if running on a terminal.
+The default `my-site-start-interactive-setup-hook' calls this function.
+
+See also `my-site-start-interactive-file-function'."
+  (mapc #'my-site-start-load my-site-start-deferred-load-files)
+  (setq my-site-start-deferred-load-files nil) )
+
+
+
+
+
+(defvar my-site-start-interactive-setup-hook
+  (list (function my-site-start-do-deferred-loads))
+"Hook run at the end of loading user's startup files, if running on a terminal.
 
 This provides a facility for deferring loading of features which are only
 useful in interactive use, but not e.g. when batch-compiling Elisp files.
 
-This hook runs any deferred, interactive startup files which were not loaded
-during initial startup; see `my-site-start-interactive-file-function'.
+By default, the hook runs `my-site-start-do-deferred-loads'.
 
 Technically, this hook is run from `term-setup-hook' in turn.")
 
 (add-hook 'term-setup-hook
 	  #'(lambda nil (run-hooks 'my-site-start-interactive-setup-hook)) )
 
-;(add-hook 'my-startup-interactive-setup-hook #'(lambda nil (message "fnord")))
 
 
 ;; This isn't really meant to be `require'd, but what the hey
