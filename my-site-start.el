@@ -3,7 +3,7 @@
 ;; Copyright (C) era eriksson <http://www.iki.fi/~era/> 2008-2009
 ;; "New-style" BSD license (no advertising clause)
 ;;
-;;; Commentary
+;;; Commentary:
 ;;
 ;; The purpose of my-site-start is to simplify maintenance of user libraries.
 ;; Instead of indefinitely tweaking your .emacs, just create a site-start.d
@@ -12,7 +12,7 @@
 ;; Of course, my-site-start itself needs to be configured in the old-fashioned
 ;; style;
 ;;
-;;  (autoload 'my-site-start "my-site-start" nil t)
+;;  (autoload 'my-site-start "path/to/my-site-start" nil t)
 ;;  (my-site-start "~/.emacs.d/site-start.d/")
 ;;
 ;; This will load all files matching `my-site-start-file-name-regex' in
@@ -24,7 +24,11 @@
 ;;;;;;;; TODO: home page
 ;;;;;;;; TODO: public repo
 ;;
-;;; Code
+;;; History:
+;;
+;; None to speak of; see version control history for details.
+;;
+;;; Code:
 
 ;(require 'subr)		; Not necessary, and doesn't (provide 'subr)
 
@@ -61,7 +65,7 @@ a full path.")
 
 (defvar my-site-start-load-order-function #'my-site-start-sort-load-order
   "*Function accepting a list of strings specifying file names to be loaded,
-and returning the list in sorted order.  Usef in `my-site-start' to decide
+and returning the list in sorted order.  Used in `my-site-start' to decide
 the order in which to load files.")
 
 (defvar my-site-start-defer-file-p-function #'my-site-start-defer-file-p
@@ -117,7 +121,7 @@ pointed to by the variable `my-site-start-defer-file-p-function'."
 (defun my-site-start-load (file)
   "Load FILE, and add its path to `load-path' if it is missing.
 
-If `my-site-start-inhibit-p' is non-nil, just print diagnostics indiciating
+If `my-site-start-inhibit-p' is non-nil, just print diagnostics indicating
 what would have been done."
   (let ((p (save-match-data
 	     (if (string-match "\\`\\(.*\\)?/[^/]*\\'" file)
@@ -182,7 +186,7 @@ for determining which files should be loaded, and in which order."
 
 (defun my-site-start-do-deferred-loads ()
   "Load all files from `my-site-start-deferred-load-files'.
-The value of `my-site-stat-deferred-load-files' is set to `nil'.
+The value of `my-site-stat-deferred-load-files' is then set to nil.
 
 The default `my-site-start-interactive-setup-hook' calls this function.
 

@@ -1,7 +1,7 @@
 ;;; dot.emacs --- skeletal .emacs for my-site-start	-*- emacs-lisp -*-
 
 (autoload 'my-site-start "my-site-start/my-site-start" nil t)
-(my-site-start "~/.emacs.d/site-start/")
+(my-site-start "~/.emacs.d/site-start.d/")
 
 (custom-set-variables
   ;; custom-set-variables was added by Custom.
