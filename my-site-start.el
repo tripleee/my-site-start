@@ -64,6 +64,11 @@ a full path.")
 and returning the list in sorted order.  Usef in `my-site-start' to decide
 the order in which to load files.")
 
+(defvar my-site-start-defer-file-p-function #'my-site-start-defer-file-p
+  "*Function to determine whether loading of a file name should be deferred.
+
+See `my-site-start-do-deferred-loads'.")
+
 (defvar my-site-start-deferred-load-files nil
   "List of files to load from `my-site-start-do-deferred-loads'.
 \(Internal use only.\)")
@@ -74,19 +79,40 @@ Add DIR to `load-path' and load files matching `my-site-start-file-name-regex'.
 
 The optional second argument NO-RECURSION says to not traverse any directories.
 
-See also `my-site-start-interactive-file-function' for controlling deferred
-loading of interactive features, and `my-site-start-interactive-setup-hook'.
+See also `my-site-start-defer-file-p-function' for controlling deferred
+loading of files, and `my-site-start-interactive-setup-hook' for the actual
+loading.  The documentation for the function `my-site-start-do-deferred-loads'
+contains further information about this feature.
 
 The final load order is primarily based on file name.  In its default
 configuration, `my-site-start' will only load file names with a numeric prefix,
 in the numeric prefix order, falling back to the sort order of the whole file
 name, regardless of the directory name.  However, this can be reconfigured by
-changing the values of the variables `my-site-start-file-name-regex' and 
-`my-site-start-load-order-function'.
+changing the values of the variables `my-site-start-file-name-regex' and
+`my-site-start-load-order-function'.  The deferred loading functionality,
+described above, also affects load order, by deferring the loading of some
+files.
 
-If the value of the variable `my-site-start-inhibit-p' is non-`nil',
-`my-site-start' will only report which files would have been loaded."
-  (mapc #'my-site-start-load (my-site-start-files dir no-recursion)) )
+If the value of the variable `my-site-start-inhibit-p' is non-nil,
+`my-site-start' will only report which files would have been loaded.
+Changes to the `load-path' will also not be made, only reported."
+  (mapc #'my-site-start-load
+	(my-site-start-split-deferred (my-site-start-files dir no-recursion)
+				      'my-site-start-deferred-load-files) ) )
+
+(defun my-site-start-split-deferred (list variable)
+  "Move deferred file names from LIST to VARIABLE, and return the rest.
+
+Whether a file is to be deferred or not is determined by the function
+pointed to by the variable `my-site-start-defer-file-p-function'."
+  (let (l f d v)
+    (while list
+      (setq f (car list)
+	    list (cdr list) )
+      (setq v (if (funcall my-site-start-defer-file-p-function f) 'd 'l))
+      (set v (cons f (symbol-value v))) )
+    (set variable (append (symbol-value variable) (reverse d)))
+    (reverse l) ))
 
 (defun my-site-start-load (file)
   "Load FILE, and add its path to `load-path' if it is missing.
@@ -157,12 +183,25 @@ The value of `my-site-stat-deferred-load-files' is set to `nil'.
 
 The default `my-site-start-interactive-setup-hook' calls this function.
 
-See also `my-site-start-interactive-file-function'."
+By convention, features which are only useful for interactive use should
+be deferred, which in practice means they will only be loaded when Emacs
+is started for interactive use \(and not, for example, from within a script,
+say, to batch compile some Lisp files\).
+
+Furthermore, the default `my-site-start-defer-file-p' function encodes the
+convention that file names with a numeric prefix larger than 99 will be
+deferred.  See furthermore `my-site-start-defer-file-p-function' if you
+wish to override this behavior."
   (mapc #'my-site-start-load my-site-start-deferred-load-files)
   (setq my-site-start-deferred-load-files nil) )
 
+(defun my-site-start-defer-file-p (file)
+  "Return non-nil if FILE has a numeric prefix strictly bigger than 99.
 
-
+This function is used as `my-site-start-defer-file-p-function' by default,
+and implements the simple policy that a file name with a numeric prefix
+larger than 99 names a file whose loading should be deferred."
+  (string-match "\\`\\(.*/\\)?0*[1-9][0-9][0-9][^/]*\\'" file) )
 
 
 (defvar my-site-start-interactive-setup-hook
