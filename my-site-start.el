@@ -146,7 +146,7 @@ for determining which files should be loaded, and in which order."
 	 (lambda (aa bb)
 	   (let ((a (my-site-start-split-filename aa))
 		 (b (my-site-start-split-filename bb)))
-	     (if (equal (car a) (car b))
+	     (if (= (car a) (car b))
 		 (string-lessp (cdr a) (cdr b))
 	       (< (car a) (car b)) ) ))) ))
 
