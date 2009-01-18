@@ -1,7 +1,7 @@
 ;;; my-site-start.el --- set up personal .emacs.d/site-start.d/
 ;;
 ;; Copyright (C) era eriksson <http://www.iki.fi/~era/> 2008-2009
-;; "New-style" BSD license (no advertising clause)
+;; License: GPL v2
 ;;
 ;;; Commentary:
 ;;
