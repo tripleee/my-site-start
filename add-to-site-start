@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# add-to-site-start: add files and directories to ~/.emacs.d/site-start.d/
+# era 2009-01-21
+#
+# Compatibility notes:
+#  ${var##subst} may not be supported in pre-POSIX /bin/sh implementations
+
+DEST=$HOME/.emacs.d/site-start.d
+RC=1
+me=${0##*/}
+
+while :; do
+    case $# in 0) RC=127; set -- --help triggered below ;; esac
+    case $1 in
+	-h|-\?|--help)
+	    cat <<____________HERE >&2
+Syntax: $me [--dest path-to-site-start-dir ] file|dir ...
+For each argument, add a symlink to it to the site-start directory
+____________HERE
+	    exit $RC
+	    ;;
+	-d|--dir|--directory|--dest|--destination)
+	    shift
+	    DEST=$1
+	    shift
+	    ;;
+	-*)
+	    echo "$me: invalid argument $1" >&2
+	    RC=255
+	    set -- --help triggered on next iteration
+	    ;;
+	*)
+	    break ;;
+    esac
+done
+
+if ! [ -d "$DEST" ]; then
+    echo "$me: creating $DEST"
+    mkdir -p "$DEST" || exit $?
+fi
+
+p=$(pwd)
+RC=0
+
+for f; do
+    case $f in
+	/*) ;;
+	*) f="$p"/"$f" ;;
+    esac
+    ln -s "$f" "$DEST" || RC=$?
+done
+
+exit $RC
