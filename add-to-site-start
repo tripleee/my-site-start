@@ -43,9 +43,11 @@ fi
 p=$(pwd)
 RC=0
 
-for f; do
+for file; do
+    f=${file%/.}
     case $f in
 	/*) ;;
+	.) f=$p ;;
 	*) f="$p"/"$f" ;;
     esac
     ln -s "$f" "$DEST" || RC=$?
