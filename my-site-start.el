@@ -16,13 +16,14 @@
 ;;  (my-site-start "~/.emacs.d/site-start.d/")
 ;;
 ;; This will load all files matching `my-site-start-file-name-regex' in
-;; .emacs.d/site-start/ including any symlinks and subdirectories.
+;; .emacs.d/site-start.d/ including any symlinks and subdirectories.
 ;;
 ;; See the customization variables below for more flexible and/or more
 ;; restricted usage scenarios.
 ;;
+;; Darcs repository / download: <http://porkmail.org/elisp/my-site-start/>
+;;
 ;;;;;;;; TODO: home page
-;;;;;;;; TODO: public repo
 ;;
 ;;; History:
 ;;
