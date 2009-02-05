@@ -77,7 +77,7 @@ the order in which to load files.")
 
 See `my-site-start-do-deferred-loads'.")
 
-(defvar my-site-start-deferred-load-files nil
+(defvar my-site-start--deferred-load-files nil
   "List of files to load from `my-site-start-do-deferred-loads'.
 \(Internal use only.\)")
 
@@ -103,7 +103,7 @@ Changes to the `load-path' will also not be made, only reported."
 	(my-site-start-split-deferred
 	 (funcall my-site-start-load-order-function
 		  (my-site-start-files dir no-recursion) )
-	 'my-site-start-deferred-load-files) ) )
+	 'my-site-start--deferred-load-files) ) )
 
 (defun my-site-start-split-deferred (list variable)
   "Move deferred file names from LIST to VARIABLE, and return the rest.
@@ -190,8 +190,10 @@ case."
 
 
 (defun my-site-start-do-deferred-loads ()
-  "Load all files from `my-site-start-deferred-load-files'.
-The value of `my-site-stat-deferred-load-files' is then set to nil.
+  "Load all files whose loading was deferred from `my-site-start'.
+
+Load all files from the list `my-site-start--deferred-load-files'.
+The value of `my-site-stat--deferred-load-files' is then set to nil.
 
 The default `my-site-start-interactive-setup-hook' calls this function.
 
@@ -204,8 +206,8 @@ Furthermore, the default `my-site-start-defer-file-p' function encodes the
 convention that file names with a numeric prefix larger than 99 will be
 deferred.  See furthermore `my-site-start-defer-file-p-function' if you
 wish to override this behavior."
-  (mapc #'my-site-start-load my-site-start-deferred-load-files)
-  (setq my-site-start-deferred-load-files nil) )
+  (mapc #'my-site-start-load my-site-start--deferred-load-files)
+  (setq my-site-start--deferred-load-files nil) )
 
 (defun my-site-start-defer-file-p (file)
   "Return non-nil if FILE has a numeric prefix strictly bigger than 99.
