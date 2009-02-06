@@ -2,6 +2,7 @@
 ;;
 ;; Copyright (C) era eriksson <http://www.iki.fi/~era/> 2008-2009
 ;; License: GPL v2
+;; Version: see `my-site-start-version' below
 ;;
 ;;; Commentary:
 ;;
@@ -32,6 +33,10 @@
 ;;; Code:
 
 ;(require 'subr)		; Not necessary, and doesn't (provide 'subr)
+
+
+(defconst my-site-start-version "0.001"
+  "Version numer for `my-site-start' library.")
 
 
 ;;;;;;;; FIXME: defcustom
