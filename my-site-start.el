@@ -28,7 +28,9 @@
 ;;
 ;;; History:
 ;;
-;; None to speak of; see version control history for details.
+;; 2009-02-05 Version 0.001 -- first public beta.
+;;
+;; See changelog and version control history for details.
 ;;
 ;;; Code:
 
