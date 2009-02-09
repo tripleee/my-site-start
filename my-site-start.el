@@ -148,7 +148,10 @@ directories will also be added to the path, under the same conditions.
 DIR should be an absolute path name.
 
 See `my-site-start-file-name-regex' for determining which files should be
-loaded."
+loaded.
+
+If both an `.el' and and `.elc' version of a file exists, only the newer
+of the two is returned."
 
   (message (if my-site-start-inhibit-p
 	       (if (member dir load-path) "%s is already on load-path"
@@ -165,7 +168,7 @@ loaded."
 		 "\\|"
 		 my-site-start-avoid-dir-regex
 		 "\\)\\'") )
-	list file)
+	list file elc)
     (save-match-data
       (while files
 	(setq file (car files)
@@ -176,7 +179,15 @@ loaded."
 	      (string-match avoid-re file)
 	      (setq list (append list (my-site-start-files file nil))) ) )
 	 ((string-match my-site-start-file-name-regex file)
-	  (setq list (cons file list)) ) ) ) )
+	  (if (string-match "\\`\\(.*\\.el\\)c?\\'" file)
+	      (setq file (match-string 1 file)
+		    elc (concat file "c") )
+	    (error "%s is neither .el nor .elc" file) )
+	  (and (file-exists-p file)
+	       (file-exists-p elc)
+	       (file-newer-than-file-p elc file)
+	       (setq file elc) )
+	  (add-to-list 'list file) ) ) ) )
     list) )
 
 (defsubst my-site-start-split-filename (filename)
