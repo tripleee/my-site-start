@@ -93,6 +93,7 @@ See `my-site-start-do-deferred-loads'.")
 Add DIR to `load-path' and load files matching `my-site-start-file-name-regex'.
 
 The optional second argument NO-RECURSION says to not traverse any directories.
+Those other directories will also be prepended to `load-path'.
 
 Files will be sorted according to the function pointed to by the variable
 `my-site-start-load-order-function'.
@@ -109,7 +110,7 @@ Changes to the `load-path' will also not be made, only reported."
   (mapc #'my-site-start-load
 	(my-site-start-split-deferred
 	 (funcall my-site-start-load-order-function
-		  (my-site-start-files dir no-recursion) )
+		  (my-site-start-files (expand-file-name dir) no-recursion) )
 	 'my-site-start--deferred-load-files) ) )
 
 (defun my-site-start-split-deferred (list variable)
@@ -127,30 +128,34 @@ pointed to by the variable `my-site-start-defer-file-p-function'."
     (reverse l) ))
 
 (defun my-site-start-load (file)
-  "Load FILE, and add its path to `load-path' if it is missing.
+  "Load FILE, unless `my-site-start' loading is inhibited.
 
 If `my-site-start-inhibit-p' is non-nil, just print diagnostics indicating
 what would have been done."
-  (let ((p (save-match-data
-	     (if (string-match "\\`\\(.*\\)?/[^/]*\\'" file)
-		 (match-string 1 file)
-	       ".") ) ))
-    (when (string-equal "" p) (setq p "."))
-    (message (if my-site-start-inhibit-p
-		 (if (member p load-path) "%s is already on load-path"
-		   "Would add %s to load-path")
-	       "Adding %s to load-path") p)
-    (add-to-list 'load-path p) )
   (message (if my-site-start-inhibit-p "Would load %s" "Loading %s") file)
   (or my-site-start-inhibit-p (load-file file)) )
 
 (defun my-site-start-files (dir no-recursion)
   "Return files in DIR which are eligible for loading, obeying NO-RECURSION
-i.e. only scanning the current directory if non-nil, otherwise descending into
-subdirectories.
+i.e. only scanning the current directory if non-nil, otherwise descending
+into subdirectories.
+
+DIR is also added to the front of `load-path' unless it is already on the
+path \(or `my-site-start-inhibit-p' is non-nil, in which case only log
+whether the path would have been added\).  If recursing, all traversed
+directories will also be added to the path, under the same conditions.
+
+DIR should be an absolute path name.
 
 See `my-site-start-file-name-regex' for determining which files should be
 loaded."
+
+  (message (if my-site-start-inhibit-p
+	       (if (member dir load-path) "%s is already on load-path"
+		 "Would add %s to load-path")
+	     "Adding %s to load-path") dir)
+  (add-to-list 'load-path dir)
+
   (let ((files (directory-files dir 'full-path nil ; no regex to filter on
 				'dont-sort))
 	(avoid-re
