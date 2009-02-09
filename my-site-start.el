@@ -90,11 +90,12 @@
 ;(require 'subr)		; Not necessary, and doesn't (provide 'subr)
 
 
-(defconst my-site-start-version "0.001"
+(defconst my-site-start-version "0.002"
   "Version numer for `my-site-start' library.")
 
 
 ;;;;;;;; FIXME: defcustom
+
 
 (defvar my-site-start-inhibit-p nil "\
 *Set to non-nil to inhibit the running of `my-site-start' when loading.")
