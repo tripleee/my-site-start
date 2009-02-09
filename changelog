@@ -4,6 +4,7 @@ Version 0.002 2009-02-09
  * If both .el and .elc versions of same file exist, use only the newer one
  * Convert starting directory to absolute path name
  * Add more detailed usage instructions to Commentary section
-	
+ * Include a version number; `my-site-start-version'
+
 Version 0.001 (no explicit version number) 2009-02-05
  * Announced on Emacswiki.org as public beta, DotEmacsModular
