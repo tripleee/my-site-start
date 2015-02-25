@@ -46,23 +46,23 @@ For example, assume the following directory structure:
     ~/
       .emacs                <- legacy; modern default is .emacs.d/init.el
       .emacs.d/
-	fnord/              <- not in site-start.d, so ignored
-	  10foo.el          <- just to illustrate that only site-start.d ...
-	  bar.el            <- ... is traversed by default
-	site-start.d/
-	  01globals.el
-	  50autoloads.el
-	  1000interactive.el
-	  darcsum/          <- symlink to ~/hack/darcsum/local-trunk
-	    50darcsum.el
-	    darcsum.el
-	    changelog
-	  bibtex.el         <- patched version to override system bibtex.el
-	  my-local-prefs/   <- symlink to ~/hack/my-local-prefs/production
-	    00globals.el
-	    50autoloads.el
-	    900cperl.el
-	    950rst.el
+        fnord/              <- not in site-start.d, so ignored
+          10foo.el          <- just to illustrate that only site-start.d ...
+          bar.el            <- ... is traversed by default
+        site-start.d/
+          01globals.el
+          50autoloads.el
+          1000interactive.el
+          darcsum/          <- symlink to ~/hack/darcsum/local-trunk
+            50darcsum.el
+            darcsum.el
+            changelog
+          bibtex.el         <- patched version to override system bibtex.el
+          my-local-prefs/   <- symlink to ~/hack/my-local-prefs/production
+            00globals.el
+            50autoloads.el
+            900cperl.el
+            950rst.el
 
 The following directories will be added to the front of `load-path`:
 
