@@ -1,6 +1,6 @@
 ;;; my-site-start.el --- set up personal .emacs.d/site-start.d/
 ;;
-;; Copyright (C) era eriksson <http://www.iki.fi/~era/> 2008-2009
+;; Copyright (C) era eriksson <http://www.iki.fi/~era/> 2008-2015
 ;; License: GPL v2
 ;; Version: see `my-site-start-version' below
 ;;
@@ -18,6 +18,8 @@
 ;;
 ;;; History:
 ;;
+;; 2015-02-25 Version 0.003 -- moved to Github; update documentation and links
+;; 2009-02-09 Version 0.002 -- various tweaks and updated documentation
 ;; 2009-02-05 Version 0.001 -- first public beta.
 ;;
 ;; See changelog and version control history for details.
@@ -27,7 +29,7 @@
 ;(require 'subr)		; Not necessary, and doesn't (provide 'subr)
 
 
-(defconst my-site-start-version "0.002"
+(defconst my-site-start-version "0.003"
   "Version numer for `my-site-start' library.")
 
 
