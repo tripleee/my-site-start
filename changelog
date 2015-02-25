@@ -1,3 +1,8 @@
+Version 0.003 2015-02-25
+ * Migrate from Darcs to Git and from private hosting to Github
+ * Move most documentation from Commentary section to README.md
+ * my-site-start-avoid-dir-regex: Include .git in ignored dirs
+
 Version 0.002 2009-02-09
  * When recursing, add all directories to `load-path', not just the ones
    with files matching `my-site-start-file-name-regex'
