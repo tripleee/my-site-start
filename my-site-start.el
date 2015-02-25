@@ -116,9 +116,10 @@ if this is not true.")
    '(
      "RCS"
      "CVS"
+     ".git"
      ".svn"
      "_darcs"
-     ;;;;;;;; TODO: git, hg, monotone, svk, arch, bzr, others ...?
+     ;;;;;;;; TODO: hg, monotone, svk, arch, bzr, others ...?
      )
    "\\|")
   "*Regular expression of directory names to avoid in `my-site-start'
