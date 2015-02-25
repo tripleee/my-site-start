@@ -10,74 +10,11 @@
 ;; Instead of indefinitely tweaking your .emacs, just create a site-start.d
 ;; directory and add symlinks to the libraries you want to load into Emacs.
 ;;
-;; Of course, my-site-start itself needs to be configured in the old-fashioned
-;; style;
+;; See README.md for a more detailed introduction, and the customization
+;; variables below for the rest.
 ;;
-;;  (autoload 'my-site-start "path/to/my-site-start" nil t)
-;;  (my-site-start "~/.emacs.d/site-start.d/")
 ;;
-;; This will load all files matching `my-site-start-file-name-regex' in
-;; .emacs.d/site-start.d/ including any symlinks and subdirectories.
-;;
-;; The default policy is to recursively add all directories to the load-path,
-;; and to load all files matching [0-9][0-9]*.elc?, those with a numeric prefix
-;; below 100 immediately, and others deferred.  Directories are traversed
-;; depth-first and added to load-path in the order they were found.
-;; (This is not currently configurable.)
-;;
-;; For example, assume the following directory structure:
-;;
-;;   ~/
-;;     .emacs
-;;     .emacs.d/
-;;       fnord/              <- not in site-start.d, so ignored
-;;         10foo.el          <- just to illustrate that only site-start.d ...
-;;         bar.el            <- ... is traversed by default
-;;       site-start.d/
-;;         01globals.el
-;;         50autoloads.el
-;;         1000interactive.el
-;;         darcsum/          <- symlink to ~/hack/darcsum/local-trunk
-;;           50darcsum.el
-;;           darcsum.el
-;;           changelog
-;;         bibtex.el         <- patched version to override system bibtex.el
-;;         my-local-prefs/   <- symlink to ~/hack/my-local-prefs/production
-;;           00globals.el
-;;           50autoloads.el
-;;           900cperl.el
-;;           950rst.el
-;;
-;; The following directories will be added to the front of `load-path':
-;;
-;;   ~/.emacs.d/site-start.d
-;;   ~/.emacs.d/site-start.d/darcsum
-;;   ~/.emacs.d/site-start.d/my-local-prefs
-;;
-;; (The last one is not really useful to have on `load-path', because all the
-;; files in that directory will be loaded by `my-site-start' with an explicit
-;; path, but this is of course by and large harmless.)
-;;
-;; The following files will be loaded immediately, in this order:
-;;
-;;   ~/.emacs.d/site-start.d/my-local-prefs/00globals.el
-;;   ~/.emacs.d/site-start.d/01globals.el
-;;   ~/.emacs.d/site-start.d/50autoloads.el
-;;   ~/.emacs.d/site-start.d/my-local-prefs/50autoloads.el
-;;   ~/.emacs.d/site-start.d/darcsum/50darcsum.el
-;;
-;; The following files will be loaded deferred, in this order:
-;;
-;;   ~/.emacs.d/site-start.d/my-local-prefs/900cperl.el
-;;   ~/.emacs.d/site-start.d/my-local-prefs/950rst.el
-;;   ~/.emacs.d/site-start.d/1000interactive.el
-;;
-;; See the customization variables below for more flexible and/or more
-;; restricted usage scenarios.
-;;
-;; Darcs repository / download: <http://porkmail.org/elisp/my-site-start/>
-;;
-;;;;;;;; TODO: home page
+;; Github repository / download: <http://github.com/tripleee/my-site-start/>
 ;;
 ;;; History:
 ;;
